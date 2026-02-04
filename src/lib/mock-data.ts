@@ -1,13 +1,82 @@
 // Mock data for development - simulates D1 database
 // This allows running the app locally without Cloudflare setup
 
+export interface Character {
+  name: string;
+  title: string;
+  emoji: string;
+  color: string;
+  bgGradient: string;
+}
+
 export interface MockScenario {
   id: string;
   text: string;
   shortLabel: string | null;
   category: string | null;
   isActive: boolean;
+  character: Character;
 }
+
+// Character definitions based on emotional themes
+export const CHARACTERS: Record<string, Character> = {
+  Generosity: {
+    name: 'Mr. Generous',
+    title: 'The Giver',
+    emoji: '🎁',
+    color: '#F59E0B',
+    bgGradient: 'from-amber-500/20 to-orange-500/20',
+  },
+  Patience: {
+    name: 'Mr. Patience',
+    title: 'The Calm One',
+    emoji: '🧘',
+    color: '#8B5CF6',
+    bgGradient: 'from-violet-500/20 to-purple-500/20',
+  },
+  Sacrifice: {
+    name: 'Ms. Sacrifice',
+    title: 'The Selfless',
+    emoji: '💝',
+    color: '#EC4899',
+    bgGradient: 'from-pink-500/20 to-rose-500/20',
+  },
+  'Selfless Service': {
+    name: 'Ms. Seva',
+    title: 'The Silent Helper',
+    emoji: '🙏',
+    color: '#14B8A6',
+    bgGradient: 'from-teal-500/20 to-cyan-500/20',
+  },
+  Acceptance: {
+    name: 'Mr. Acceptance',
+    title: 'The Understanding',
+    emoji: '🤗',
+    color: '#06B6D4',
+    bgGradient: 'from-cyan-500/20 to-blue-500/20',
+  },
+  Compassion: {
+    name: 'Ms. Compassion',
+    title: 'The Empathetic',
+    emoji: '💗',
+    color: '#F43F5E',
+    bgGradient: 'from-rose-500/20 to-red-500/20',
+  },
+  Trust: {
+    name: 'Mr. Trust',
+    title: 'The Believer',
+    emoji: '🤝',
+    color: '#3B82F6',
+    bgGradient: 'from-blue-500/20 to-indigo-500/20',
+  },
+  Service: {
+    name: 'Mr. Service',
+    title: 'The Helper',
+    emoji: '🌟',
+    color: '#10B981',
+    bgGradient: 'from-emerald-500/20 to-green-500/20',
+  },
+};
 
 export interface MockRevealSlide {
   id: string;
@@ -38,80 +107,91 @@ export const TEST_ROOM_CODE = 'TEST01';
 export let MOCK_SCENARIOS: MockScenario[] = [
   {
     id: '1',
-    text: 'Your first salary is $5,000. Someone you trust asks for $4,000. You will struggle for the rest of the month. Would you still give it?',
+    text: 'Meet Mr. Generous! 🎁 He just got his first salary of $5,000. Someone he trusts asks for $4,000—he\'ll struggle for the rest of the month. Would you still give it?',
     shortLabel: 'First salary sacrifice',
     category: 'Generosity',
     isActive: true,
+    character: CHARACTERS['Generosity'],
   },
   {
     id: '2', 
-    text: 'The person next to you unknowingly rests their chair leg on your foot. It\'s uncomfortable, but they don\'t realize it. Would you still feel pleasant toward them?',
+    text: 'Meet Mr. Patience! 🧘 The person next to him unknowingly rests their chair leg on his foot. It\'s uncomfortable, but they don\'t realize it. Would you still feel pleasant toward them?',
     shortLabel: 'Silent discomfort',
     category: 'Patience',
     isActive: true,
+    character: CHARACTERS['Patience'],
   },
   {
     id: '3',
-    text: 'You live with your family in a 3-BHK apartment. During COVID, a distant friend asks if they can stay in your extra room. There is health risk, inconvenience, and uncertainty. Would you still allow them to stay?',
+    text: 'Meet Ms. Sacrifice! 💝 She lives with her family in a 3-BHK apartment. During COVID, a distant friend asks to stay in her extra room. There\'s health risk, inconvenience, and uncertainty. Would you still allow them to stay?',
     shortLabel: 'Risky hospitality',
     category: 'Sacrifice',
     isActive: true,
+    character: CHARACTERS['Sacrifice'],
   },
   {
     id: '4',
-    text: 'You are offered a role or responsibility that helps many people, but it requires you to delay marriage, social life, and personal plans for several years. There is no public recognition and no guarantee of reward. Would you still accept it?',
+    text: 'Meet Ms. Sacrifice! 💝 She\'s offered a role that helps many people, but requires delaying marriage, social life, and personal plans for years. No public recognition, no guarantee of reward. Would you still accept it?',
     shortLabel: 'Delayed life plans',
     category: 'Sacrifice',
     isActive: true,
+    character: CHARACTERS['Sacrifice'],
   },
   {
     id: '5',
-    text: 'You quietly support someone\'s growth for years. They eventually succeed, but no one knows your role. Would you still do it again?',
+    text: 'Meet Ms. Seva! 🙏 She quietly supported someone\'s growth for years. They eventually succeeded, but no one knows her role. Would you still do it again?',
     shortLabel: 'Unrecognized support',
     category: 'Selfless Service',
     isActive: true,
+    character: CHARACTERS['Selfless Service'],
   },
   {
     id: '6',
-    text: 'Someone repeatedly fails even after being shown the right path. You feel irritation more than compassion now. Would you distance yourself from them?',
+    text: 'Meet Mr. Acceptance! 🤗 Someone repeatedly fails even after being shown the right path. He feels irritation more than compassion now. Would you distance yourself from them?',
     shortLabel: 'Persistent failure',
     category: 'Acceptance',
     isActive: true,
+    character: CHARACTERS['Acceptance'],
   },
   {
     id: '7',
-    text: 'You notice a serious mistake someone made. Pointing it out now would embarrass them deeply. Would you stay silent and wait?',
+    text: 'Meet Ms. Compassion! 💗 She notices a serious mistake someone made. Pointing it out now would embarrass them deeply. Would you stay silent and wait?',
     shortLabel: 'Protecting dignity',
     category: 'Compassion',
     isActive: true,
+    character: CHARACTERS['Compassion'],
   },
   {
     id: '8',
-    text: 'A person drains your emotional energy, yet you know they are struggling internally. Would you still stay kind?',
+    text: 'Meet Mr. Patience! 🧘 A person drains his emotional energy, yet he knows they\'re struggling internally. Would you still stay kind?',
     shortLabel: 'Emotional drain',
     category: 'Patience',
     isActive: true,
+    character: CHARACTERS['Patience'],
   },
   {
     id: '9',
-    text: 'Someone you know has failed before. Everyone advises you not to rely on them again. Would you still trust and stand by them?',
+    text: 'Meet Mr. Trust! 🤝 Someone he knows has failed before. Everyone advises against relying on them again. Would you still trust and stand by them?',
     shortLabel: 'Second chance trust',
     category: 'Trust',
     isActive: true,
+    character: CHARACTERS['Trust'],
   },
   {
     id: '10',
-    text: 'You notice someone silently struggling, but helping them will add responsibility to your life. Would you step in?',
+    text: 'Meet Mr. Service! 🌟 He notices someone silently struggling, but helping them will add responsibility to his life. Would you step in?',
     shortLabel: 'Added responsibility',
     category: 'Service',
     isActive: true,
+    character: CHARACTERS['Service'],
   },
   {
     id: '11',
-    text: 'Caring for someone means adjusting your routine every day. No appreciation. No recognition. Would you still do it?',
+    text: 'Meet Ms. Seva! 🙏 Caring for someone means adjusting her routine every day. No appreciation. No recognition. Would you still do it?',
     shortLabel: 'Daily adjustment',
     category: 'Selfless Service',
     isActive: true,
+    character: CHARACTERS['Selfless Service'],
   },
 ];
 
@@ -229,10 +309,12 @@ export function getScenarioById(id: string): MockScenario | undefined {
   return MOCK_SCENARIOS.find(s => s.id === id);
 }
 
-export function addScenario(scenario: Omit<MockScenario, 'id'>): MockScenario {
+export function addScenario(scenario: Omit<MockScenario, 'id' | 'character'> & { character?: Character }): MockScenario {
+  const category = scenario.category || 'Service';
   const newScenario: MockScenario = {
     ...scenario,
     id: `scenario-${Date.now()}`,
+    character: scenario.character || CHARACTERS[category] || CHARACTERS['Service'],
   };
   MOCK_SCENARIOS.push(newScenario);
   return newScenario;

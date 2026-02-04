@@ -5,19 +5,19 @@
 INSERT OR IGNORE INTO scenario_sets (id, name, description, is_active) 
 VALUES ('default', 'Selfless Service', 'Scenarios exploring selfless love and seva', 1);
 
--- Insert scenarios
+-- Insert scenarios with character introductions
 INSERT OR IGNORE INTO scenarios (id, set_id, text, short_label, category, sort_order, is_active) VALUES
-('1', 'default', 'Your first salary is $5,000. Someone you trust asks for $4,000. You will struggle for the rest of the month. Would you still give it?', 'First salary sacrifice', 'Generosity', 1, 1),
-('2', 'default', 'The person next to you unknowingly rests their chair leg on your foot. It''s uncomfortable, but they don''t realize it. Would you still feel pleasant toward them?', 'Silent discomfort', 'Patience', 2, 1),
-('3', 'default', 'You live with your family in a 3-BHK apartment. During COVID, a distant friend asks if they can stay in your extra room. There is health risk, inconvenience, and uncertainty. Would you still allow them to stay?', 'Risky hospitality', 'Sacrifice', 3, 1),
-('4', 'default', 'You are offered a role or responsibility that helps many people, but it requires you to delay marriage, social life, and personal plans for several years. There is no public recognition and no guarantee of reward. Would you still accept it?', 'Delayed life plans', 'Sacrifice', 4, 1),
-('5', 'default', 'You quietly support someone''s growth for years. They eventually succeed, but no one knows your role. Would you still do it again?', 'Unrecognized support', 'Selfless Service', 5, 1),
-('6', 'default', 'Someone repeatedly fails even after being shown the right path. You feel irritation more than compassion now. Would you distance yourself from them?', 'Persistent failure', 'Acceptance', 6, 1),
-('7', 'default', 'You notice a serious mistake someone made. Pointing it out now would embarrass them deeply. Would you stay silent and wait?', 'Protecting dignity', 'Compassion', 7, 1),
-('8', 'default', 'A person drains your emotional energy, yet you know they are struggling internally. Would you still stay kind?', 'Emotional drain', 'Patience', 8, 1),
-('9', 'default', 'Someone you know has failed before. Everyone advises you not to rely on them again. Would you still trust and stand by them?', 'Second chance trust', 'Trust', 9, 1),
-('10', 'default', 'You notice someone silently struggling, but helping them will add responsibility to your life. Would you step in?', 'Added responsibility', 'Service', 10, 1),
-('11', 'default', 'Caring for someone means adjusting your routine every day. No appreciation. No recognition. Would you still do it?', 'Daily adjustment', 'Selfless Service', 11, 1);
+('1', 'default', 'Meet Mr. Generous! 🎁 He just got his first salary of $5,000. Someone he trusts asks for $4,000—he''ll struggle for the rest of the month. Would you still give it?', 'First salary sacrifice', 'Generosity', 1, 1),
+('2', 'default', 'Meet Mr. Patience! 🧘 The person next to him unknowingly rests their chair leg on his foot. It''s uncomfortable, but they don''t realize it. Would you still feel pleasant toward them?', 'Silent discomfort', 'Patience', 2, 1),
+('3', 'default', 'Meet Ms. Sacrifice! 💝 She lives with her family in a 3-BHK apartment. During COVID, a distant friend asks to stay in her extra room. There''s health risk, inconvenience, and uncertainty. Would you still allow them to stay?', 'Risky hospitality', 'Sacrifice', 3, 1),
+('4', 'default', 'Meet Ms. Sacrifice! 💝 She''s offered a role that helps many people, but requires delaying marriage, social life, and personal plans for years. No public recognition, no guarantee of reward. Would you still accept it?', 'Delayed life plans', 'Sacrifice', 4, 1),
+('5', 'default', 'Meet Ms. Seva! 🙏 She quietly supported someone''s growth for years. They eventually succeeded, but no one knows her role. Would you still do it again?', 'Unrecognized support', 'Selfless Service', 5, 1),
+('6', 'default', 'Meet Mr. Acceptance! 🤗 Someone repeatedly fails even after being shown the right path. He feels irritation more than compassion now. Would you distance yourself from them?', 'Persistent failure', 'Acceptance', 6, 1),
+('7', 'default', 'Meet Ms. Compassion! 💗 She notices a serious mistake someone made. Pointing it out now would embarrass them deeply. Would you stay silent and wait?', 'Protecting dignity', 'Compassion', 7, 1),
+('8', 'default', 'Meet Mr. Patience! 🧘 A person drains his emotional energy, yet he knows they''re struggling internally. Would you still stay kind?', 'Emotional drain', 'Patience', 8, 1),
+('9', 'default', 'Meet Mr. Trust! 🤝 Someone he knows has failed before. Everyone advises against relying on them again. Would you still trust and stand by them?', 'Second chance trust', 'Trust', 9, 1),
+('10', 'default', 'Meet Mr. Service! 🌟 He notices someone silently struggling, but helping them will add responsibility to his life. Would you step in?', 'Added responsibility', 'Service', 10, 1),
+('11', 'default', 'Meet Ms. Seva! 🙏 Caring for someone means adjusting her routine every day. No appreciation. No recognition. Would you still do it?', 'Daily adjustment', 'Selfless Service', 11, 1);
 
 -- Insert reveal slides
 INSERT OR IGNORE INTO reveal_slides (id, set_id, title, body, image_url, quote, quote_author, sort_order) VALUES

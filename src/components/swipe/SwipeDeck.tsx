@@ -14,11 +14,20 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useGameStore } from '@/lib/store';
 
+export interface Character {
+  name: string;
+  title: string;
+  emoji: string;
+  color: string;
+  bgGradient: string;
+}
+
 export interface Scenario {
   id: string;
   text: string;
   shortLabel?: string | null;
   category?: string | null;
+  character?: Character;
 }
 
 interface SwipeDeckProps {
@@ -310,14 +319,14 @@ export function SwipeDeck({
             whileTap={{ cursor: 'grabbing' }}
           >
             {/* Card Content */}
-            <div className="relative h-full p-8 flex flex-col items-center justify-center overflow-hidden">
+            <div className="relative h-full p-6 flex flex-col items-center overflow-hidden">
               {/* YES Stamp */}
               <motion.div
-                className="absolute top-8 right-4 rotate-12 pointer-events-none"
+                className="absolute top-20 right-4 rotate-12 pointer-events-none z-10"
                 style={{ opacity: yesOpacity }}
               >
-                <div className="px-5 py-2 border-4 border-green-500 rounded-lg bg-green-500/20 shadow-lg shadow-green-500/20">
-                  <span className="text-2xl font-black text-green-500 tracking-wider">
+                <div className="px-4 py-1.5 border-3 border-green-500 rounded-lg bg-green-500/20 shadow-lg shadow-green-500/20">
+                  <span className="text-xl font-black text-green-500 tracking-wider">
                     YES
                   </span>
                 </div>
@@ -325,25 +334,56 @@ export function SwipeDeck({
 
               {/* NO Stamp */}
               <motion.div
-                className="absolute top-8 left-4 -rotate-12 pointer-events-none"
+                className="absolute top-20 left-4 -rotate-12 pointer-events-none z-10"
                 style={{ opacity: noOpacity }}
               >
-                <div className="px-5 py-2 border-4 border-red-500 rounded-lg bg-red-500/20 shadow-lg shadow-red-500/20">
-                  <span className="text-2xl font-black text-red-500 tracking-wider">
+                <div className="px-4 py-1.5 border-3 border-red-500 rounded-lg bg-red-500/20 shadow-lg shadow-red-500/20">
+                  <span className="text-xl font-black text-red-500 tracking-wider">
                     NO
                   </span>
                 </div>
               </motion.div>
 
+              {/* Character Profile */}
+              {currentCard.character && (
+                <div className="flex flex-col items-center mb-4 mt-2">
+                  {/* Character Avatar */}
+                  <div 
+                    className={cn(
+                      'w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-3xl md:text-4xl',
+                      'bg-gradient-to-br shadow-lg border-2 border-white/30',
+                      currentCard.character.bgGradient
+                    )}
+                    style={{ 
+                      boxShadow: `0 4px 20px ${currentCard.character.color}40`
+                    }}
+                  >
+                    {currentCard.character.emoji}
+                  </div>
+                  {/* Character Name */}
+                  <h3 
+                    className="mt-2 text-sm md:text-base font-bold tracking-wide"
+                    style={{ color: currentCard.character.color }}
+                  >
+                    {currentCard.character.name}
+                  </h3>
+                  <span className="text-xs text-white/50 font-medium">
+                    {currentCard.character.title}
+                  </span>
+                </div>
+              )}
+
               {/* Question Text */}
-              <p
-                className={cn(
-                  'text-center font-medium leading-relaxed max-w-[240px] md:max-w-[280px]',
-                  highContrastMode ? 'text-white text-xl md:text-2xl' : 'text-white/90 text-lg md:text-xl'
-                )}
-              >
-                {currentCard.text}
-              </p>
+              <div className="flex-1 flex items-center justify-center">
+                <p
+                  className={cn(
+                    'text-center font-medium leading-relaxed max-w-[240px] md:max-w-[280px]',
+                    highContrastMode ? 'text-white text-base md:text-lg' : 'text-white/90 text-sm md:text-base'
+                  )}
+                >
+                  {currentCard.text}
+                </p>
+              </div>
             </div>
 
             {/* Glow effect on drag */}
