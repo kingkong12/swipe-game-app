@@ -2,12 +2,13 @@
 name = "swipe-game"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
 
 # D1 Database binding
 [[d1_databases]]
 binding = "DB"
 database_name = "swipe-game-db"
-database_id = "YOUR_DATABASE_ID" # Replace after creating database
+database_id = "5daae3cd-739c-40ce-aa86-6391afc4dcf5" # Replace after creating database
 
 # Environment variables (set via dashboard or wrangler secret)
 [vars]

@@ -228,8 +228,26 @@ export function SwipeDeck({
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-8 select-none">
+      {/* NO Guy - Left Side (Always Visible) */}
+      <div className="fixed left-[-80px] md:left-[-40px] lg:left-0 top-1/2 -translate-y-1/2 pointer-events-none z-0">
+        <img 
+          src="/no-guy.png" 
+          alt="No" 
+          className="w-72 h-72 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] object-contain drop-shadow-2xl"
+        />
+      </div>
+
+      {/* YES Guy - Right Side (Always Visible) */}
+      <div className="fixed right-[-80px] md:right-[-40px] lg:right-0 top-1/2 -translate-y-1/2 pointer-events-none z-0">
+        <img 
+          src="/yes-guy.png" 
+          alt="Yes" 
+          className="w-72 h-72 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] object-contain drop-shadow-2xl"
+        />
+      </div>
+
       {/* Progress Bar */}
-      <div className="w-full max-w-md mb-6">
+      <div className="w-[280px] md:w-[320px] lg:w-[380px] mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-white/70">
             {currentIndex + 1} of {scenarios.length}
@@ -249,8 +267,8 @@ export function SwipeDeck({
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Card Stack */}
-      <div className="relative w-full max-w-md h-[400px]">
+      {/* Card Stack - Adjusted to fit between side images */}
+      <div className="relative w-[280px] md:w-[320px] lg:w-[380px] h-[350px] md:h-[400px] z-20">
         {/* Background cards (peeking) */}
         {scenarios.slice(currentIndex + 1, currentIndex + 3).map((scenario, i) => (
           <motion.div
@@ -317,31 +335,15 @@ export function SwipeDeck({
                 </div>
               </motion.div>
 
-              {/* Category Badge */}
-              {currentCard.category && (
-                <div className="absolute top-6 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1 text-xs font-medium text-white/60 bg-white/10 rounded-full backdrop-blur-sm">
-                    {currentCard.category}
-                  </span>
-                </div>
-              )}
-
               {/* Question Text */}
               <p
                 className={cn(
-                  'text-center font-medium leading-relaxed max-w-[280px]',
-                  highContrastMode ? 'text-white text-2xl' : 'text-white/90 text-xl'
+                  'text-center font-medium leading-relaxed max-w-[240px] md:max-w-[280px]',
+                  highContrastMode ? 'text-white text-xl md:text-2xl' : 'text-white/90 text-lg md:text-xl'
                 )}
               >
                 {currentCard.text}
               </p>
-
-              {/* Short Label */}
-              {currentCard.shortLabel && (
-                <p className="mt-4 text-sm text-white/40 italic">
-                  {currentCard.shortLabel}
-                </p>
-              )}
             </div>
 
             {/* Glow effect on drag */}
