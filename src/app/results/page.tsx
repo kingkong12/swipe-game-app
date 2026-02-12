@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ArrowRight, Share2, Check, Heart, X, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { copyToClipboard } from '@/lib/utils';
+import { cn, copyToClipboard } from '@/lib/utils';
 
 // Default room ID for demo mode
 const DEMO_ROOM_ID = 'room1';
@@ -20,13 +19,31 @@ interface ScenarioAggregate {
 }
 
 export default function ResultsPage() {
-  const router = useRouter();
   const [answers, setAnswers] = useState<{ scenarioId: string; answer: 'yes' | 'no' }[]>([]);
   const [copied, setCopied] = useState(false);
   const [showDemographics, setShowDemographics] = useState(false);
+  const [buttonEnabled, setButtonEnabled] = useState(false);
   const [demographics, setDemographics] = useState<ScenarioAggregate[]>([]);
   const [totalResponses, setTotalResponses] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Redirect forward if user already passed this step
+  useEffect(() => {
+    const step = localStorage.getItem('swipe-flow-step');
+    if (step === 'reveal') {
+      window.location.replace('/reveal');
+      return;
+    }
+    // Block back button: push user forward whenever page gains focus
+    const blockBack = () => window.history.forward();
+    window.addEventListener('popstate', blockBack);
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) blockBack();
+    });
+    return () => {
+      window.removeEventListener('popstate', blockBack);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -54,7 +71,7 @@ export default function ResultsPage() {
         }
 
         // Fetch scenarios
-        const scenariosResponse = await fetch('/api/scenarios');
+        const scenariosResponse = await fetch('/api/scenarios', { cache: 'no-store' });
         const scenariosData = await scenariosResponse.json() as ScenariosResponse;
 
         // Fetch aggregates from API
@@ -160,6 +177,22 @@ export default function ResultsPage() {
     loadData();
   }, []);
 
+  // Auto-expand personality insights after a short delay, then enable button
+  useEffect(() => {
+    if (!isLoading) {
+      const expandTimer = setTimeout(() => {
+        setShowDemographics(true);
+      }, 1500);
+      const buttonTimer = setTimeout(() => {
+        setButtonEnabled(true);
+      }, 4000);
+      return () => {
+        clearTimeout(expandTimer);
+        clearTimeout(buttonTimer);
+      };
+    }
+  }, [isLoading]);
+
   const yesCount = answers.filter((a) => a.answer === 'yes').length;
   const noCount = answers.filter((a) => a.answer === 'no').length;
   const total = answers.length;
@@ -185,14 +218,14 @@ export default function ResultsPage() {
         title: 'The Thoughtful Observer',
         description:
           'You approach helping with discernment. You think carefully before committing, which shows wisdom.',
-        emoji: '🦉',
+        emoji: '✨',
       };
     } else {
       return {
-        title: 'The Self-Aware Individual',
+        title: 'The Thoughtful Observer',
         description:
-          'You value honesty about your boundaries. Knowing your limits is the first step to genuine giving.',
-        emoji: '🔮',
+          'You approach helping with discernment. You think carefully before committing, which shows wisdom.',
+        emoji: '✨',
       };
     }
   };
@@ -209,7 +242,9 @@ export default function ResultsPage() {
   }, [yesPercentage, insight]);
 
   const handleContinue = () => {
-    router.push('/reveal');
+    // Mark flow progress and navigate
+    localStorage.setItem('swipe-flow-step', 'reveal');
+    window.location.replace('/reveal');
   };
 
   if (isLoading) {
@@ -235,89 +270,10 @@ export default function ResultsPage() {
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: 'spring' }}
         >
-          <div className="text-6xl mb-4">{insight.emoji}</div>
-          <h1 className="text-3xl font-bold text-white mb-2">Complete!</h1>
-          <p className="text-white/60">Here's what your answers reveal</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Insights</h1>
+          <p className="text-white/60">Here&apos;s what your answers reveal</p>
         </motion.div>
 
-        {/* Stats Card */}
-        <motion.div
-          className="glass-card rounded-3xl p-6 mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          {/* Percentage Ring */}
-          <div className="flex justify-center mb-6">
-            <div className="relative w-32 h-32">
-              <svg className="w-full h-full -rotate-90">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke="currentColor"
-                  strokeWidth="12"
-                  fill="none"
-                  className="text-white/10"
-                />
-                <motion.circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke="url(#gradient)"
-                  strokeWidth="12"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={351.86}
-                  initial={{ strokeDashoffset: 351.86 }}
-                  animate={{ strokeDashoffset: 351.86 - (351.86 * yesPercentage) / 100 }}
-                  transition={{ delay: 0.5, duration: 1, ease: 'easeOut' }}
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#a855f7" />
-                    <stop offset="100%" stopColor="#ec4899" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <motion.span
-                  className="text-3xl font-bold text-white"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  {yesPercentage}%
-                </motion.span>
-              </div>
-            </div>
-          </div>
-
-          {/* Yes/No Counts */}
-          <div className="flex justify-center gap-8 mb-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Heart className="w-5 h-5 text-green-400" fill="currentColor" />
-                <span className="text-2xl font-bold text-white">{yesCount}</span>
-              </div>
-              <p className="text-sm text-white/50">Yes</p>
-            </div>
-            <div className="w-px bg-white/10" />
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <X className="w-5 h-5 text-red-400" />
-                <span className="text-2xl font-bold text-white">{noCount}</span>
-              </div>
-              <p className="text-sm text-white/50">No</p>
-            </div>
-          </div>
-
-          {/* Personality Type */}
-          <div className="text-center border-t border-white/10 pt-6">
-            <h3 className="text-xl font-semibold text-white mb-2">{insight.title}</h3>
-            <p className="text-white/60 text-sm leading-relaxed">{insight.description}</p>
-          </div>
-        </motion.div>
 
         {/* Demographics Section */}
         <motion.div
@@ -335,9 +291,9 @@ export default function ResultsPage() {
                 <Users className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">How Others Answered</h3>
+                <h3 className="text-lg font-semibold text-white">Your Personality Insight</h3>
                 <p className="text-sm text-white/50">
-                  {totalResponses} {totalResponses === 1 ? 'person' : 'people'} played
+                  Based on your swipes, this is what we think of the kind of person you are looking for
                 </p>
               </div>
             </div>
@@ -353,63 +309,70 @@ export default function ResultsPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-6 space-y-4 max-h-[400px] overflow-y-auto pr-2"
+              className="mt-6 space-y-5 max-h-[500px] overflow-y-auto pr-2"
             >
               {demographics.map((item, index) => {
                 const userAnswer = answers.find((a) => a.scenarioId === item.id)?.answer;
+                const noPercentage = 100 - item.yesPercentage;
                 return (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="border border-white/10 rounded-xl p-4"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.06 }}
+                    className="border border-white/10 rounded-xl p-4 bg-white/[0.02]"
                   >
-                    <p className="text-sm text-white/80 mb-3 line-clamp-2">{item.text}</p>
+                    {/* Question text */}
+                    <p className="text-sm text-white/80 mb-4 line-clamp-2">{item.text}</p>
 
-                    {/* Progress Bar */}
-                    <div className="relative h-8 bg-white/5 rounded-full overflow-hidden flex">
-                      {/* Yes portion */}
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-green-500 to-green-400 flex items-center justify-start pl-2"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${item.yesPercentage}%` }}
-                        transition={{ delay: 0.3 + index * 0.05, duration: 0.5 }}
-                      >
-                        {item.yesPercentage >= 15 && (
-                          <span className="text-xs font-bold text-white flex items-center gap-1">
-                            <Heart className="w-3 h-3" fill="white" />
+                    {/* Bar chart area */}
+                    <div className="space-y-2.5">
+                      {/* Swiped Right bar */}
+                      <div className="flex items-center gap-3">
+                        <span className="text-[11px] text-white/40 w-[72px] text-right shrink-0">
+                          Swiped Right
+                        </span>
+                        <div className="flex-1 h-7 bg-white/5 rounded-lg overflow-hidden relative">
+                          <motion.div
+                            className="h-full rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-400 flex items-center"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.max(item.yesPercentage, 3)}%` }}
+                            transition={{ delay: 0.3 + index * 0.06, duration: 0.6, ease: 'easeOut' }}
+                          />
+                          <span className="absolute inset-0 flex items-center pl-2.5 text-[11px] font-bold text-white drop-shadow-sm">
                             {item.yesPercentage}%
                           </span>
-                        )}
-                      </motion.div>
-                      {/* No portion */}
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-red-400 to-red-500 flex items-center justify-end pr-2 flex-1"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 + index * 0.05 }}
-                      >
-                        {100 - item.yesPercentage >= 15 && (
-                          <span className="text-xs font-bold text-white flex items-center gap-1">
-                            {100 - item.yesPercentage}%
-                            <X className="w-3 h-3" />
+                        </div>
+                        {userAnswer === 'yes' && (
+                          <span className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 rounded-full px-2 py-0.5">
+                            <Check className="w-3 h-3" /> YOU
                           </span>
                         )}
-                      </motion.div>
-                    </div>
-
-                    {/* User's answer indicator */}
-                    {userAnswer && (
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-xs text-white/40">You said:</span>
-                        <span
-                          className={`text-xs font-semibold ${userAnswer === 'yes' ? 'text-green-400' : 'text-red-400'}`}
-                        >
-                          {userAnswer === 'yes' ? '✓ Yes' : '✗ No'}
-                        </span>
                       </div>
-                    )}
+
+                      {/* Swiped Left bar */}
+                      <div className="flex items-center gap-3">
+                        <span className="text-[11px] text-white/40 w-[72px] text-right shrink-0">
+                          Swiped Left
+                        </span>
+                        <div className="flex-1 h-7 bg-white/5 rounded-lg overflow-hidden relative">
+                          <motion.div
+                            className="h-full rounded-lg bg-gradient-to-r from-rose-600 to-rose-400 flex items-center"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.max(noPercentage, 3)}%` }}
+                            transition={{ delay: 0.45 + index * 0.06, duration: 0.6, ease: 'easeOut' }}
+                          />
+                          <span className="absolute inset-0 flex items-center pl-2.5 text-[11px] font-bold text-white drop-shadow-sm">
+                            {noPercentage}%
+                          </span>
+                        </div>
+                        {userAnswer === 'no' && (
+                          <span className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-rose-400 bg-rose-500/15 border border-rose-500/25 rounded-full px-2 py-0.5">
+                            <X className="w-3 h-3" /> YOU
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -427,25 +390,18 @@ export default function ResultsPage() {
           <Button
             onClick={handleContinue}
             size="xl"
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-purple-500/25 group"
+            disabled={!buttonEnabled}
+            className={cn(
+              'w-full text-white shadow-xl group transition-all duration-500',
+              buttonEnabled
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/25'
+                : 'bg-white/10 cursor-not-allowed opacity-50'
+            )}
           >
-            Discover the Meaning
+            Look for your match ...
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
 
-          <Button onClick={handleShare} variant="glass" size="lg" className="w-full">
-            {copied ? (
-              <>
-                <Check className="mr-2 w-5 h-5 text-green-400" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Share2 className="mr-2 w-5 h-5" />
-                Share Results
-              </>
-            )}
-          </Button>
         </motion.div>
       </motion.div>
     </div>

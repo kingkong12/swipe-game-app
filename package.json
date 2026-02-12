@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/generate-smruti-manifest.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -53,6 +54,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "wrangler": "^4.63.0"
   }
 }

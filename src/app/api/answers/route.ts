@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { setAnswer, removeAnswer, getSessionAnswers } from '@/lib/mock-data';
 
 export const runtime = 'edge';
 
@@ -12,24 +11,53 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const { getDb, getSessionAnswers, resolveRoom } = await import('@/lib/db');
+    const db = getDb();
+    const roomId = searchParams.get('roomId');
+    const roomCode = searchParams.get('roomCode');
+    const room = await resolveRoom(db, roomId, roomCode);
+    if (!room) {
+      return NextResponse.json({ success: false, error: 'Room not found' }, { status: 404 });
+    }
+    const answers = await getSessionAnswers(db, sessionId, room.id);
+    return NextResponse.json({ success: true, answers });
+  } catch {
+    // Fallback to mock data
+    const { getSessionAnswers } = await import('@/lib/mock-data');
     const answers = getSessionAnswers(sessionId);
     return NextResponse.json({ success: true, answers });
-  } catch (error) {
-    console.error('Error fetching answers:', error);
-    return NextResponse.json({ success: false, error: 'Failed to fetch answers' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { sessionId?: string; scenarioId?: string; answer?: 'yes' | 'no' };
-    const { sessionId, scenarioId, answer } = body;
+    const body = await request.json() as {
+      sessionId?: string;
+      scenarioId?: string;
+      answer?: 'yes' | 'no';
+      roomId?: string;
+      roomCode?: string;
+    };
+    const { sessionId, scenarioId, answer, roomId, roomCode } = body;
 
     if (!sessionId || !scenarioId || !answer) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    setAnswer(sessionId, scenarioId, answer);
+    try {
+      const { getDb, saveAnswer, resolveRoom } = await import('@/lib/db');
+      const db = getDb();
+      const room = await resolveRoom(db, roomId, roomCode);
+      if (!room) {
+        return NextResponse.json({ success: false, error: 'Room not found' }, { status: 404 });
+      }
+      await saveAnswer(db, sessionId, room.id, scenarioId, answer);
+    } catch {
+      // Fallback to mock data
+      const { setAnswer } = await import('@/lib/mock-data');
+      setAnswer(sessionId, scenarioId, answer);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error saving answer:', error);
@@ -47,10 +75,20 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    const { getDb, deleteAnswer, resolveRoom } = await import('@/lib/db');
+    const db = getDb();
+    const roomId = searchParams.get('roomId');
+    const roomCode = searchParams.get('roomCode');
+    const room = await resolveRoom(db, roomId, roomCode);
+    if (!room) {
+      return NextResponse.json({ success: false, error: 'Room not found' }, { status: 404 });
+    }
+    await deleteAnswer(db, sessionId, room.id, scenarioId);
+  } catch {
+    // Fallback to mock data
+    const { removeAnswer } = await import('@/lib/mock-data');
     removeAnswer(sessionId, scenarioId);
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error removing answer:', error);
-    return NextResponse.json({ success: false, error: 'Failed to remove answer' }, { status: 500 });
   }
+
+  return NextResponse.json({ success: true });
 }

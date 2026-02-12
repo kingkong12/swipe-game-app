@@ -1,6 +1,6 @@
 # Cloudflare Pages configuration
 name = "swipe-game"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
@@ -8,7 +8,7 @@ pages_build_output_dir = ".vercel/output/static"
 [[d1_databases]]
 binding = "DB"
 database_name = "swipe-game-db"
-database_id = "5daae3cd-739c-40ce-aa86-6391afc4dcf5" # Replace after creating database
+database_id = "9555761f-652c-4c6c-86ed-c663534e2ef3"
 
 # Environment variables (set via dashboard or wrangler secret)
 [vars]

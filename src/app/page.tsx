@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Sparkles, Users, Heart } from 'lucide-react';
@@ -11,15 +11,41 @@ export default function HomePage() {
   const router = useRouter();
   const [roomCode, setRoomCode] = useState('');
 
-  const handleJoinRoom = () => {
-    if (roomCode.trim()) {
-      router.push(`/r/${roomCode.trim().toUpperCase()}`);
+  // Home page is the entry point — clear flow state so user can start fresh
+  useEffect(() => {
+    localStorage.removeItem('swipe-flow-step');
+    localStorage.removeItem('swipe-room-code');
+  }, []);
+
+  const [roomError, setRoomError] = useState('');
+  const [joiningRoom, setJoiningRoom] = useState(false);
+
+  const handleJoinRoom = async () => {
+    const code = roomCode.trim().toUpperCase();
+    if (!code) return;
+    setJoiningRoom(true);
+    setRoomError('');
+    try {
+      const res = await fetch(`/api/rooms?code=${code}`, { cache: 'no-store' });
+      const data = await res.json() as { success?: boolean; room?: { code: string } };
+      if (data.success && data.room) {
+        localStorage.setItem('swipe-room-code', code);
+        localStorage.setItem('swipe-flow-step', 'play');
+        window.location.replace('/play');
+      } else {
+        setRoomError('Room not found. Check the code and try again.');
+      }
+    } catch {
+      setRoomError('Something went wrong. Please try again.');
     }
+    setJoiningRoom(false);
   };
 
   const handleStartDemo = () => {
-    // Start demo mode with mock data
-    router.push('/play');
+    // Use default room
+    localStorage.setItem('swipe-room-code', 'DEFAULT');
+    localStorage.setItem('swipe-flow-step', 'play');
+    window.location.replace('/play');
   };
 
   return (
@@ -62,7 +88,7 @@ export default function HomePage() {
             <Sparkles className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
-            Swipe Game
+            Discover Your Match
           </h1>
           <p className="text-white/60 text-lg">
             Discover what truly matters to you
@@ -103,43 +129,29 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          {/* Start Demo Button */}
-          <Button
-            onClick={handleStartDemo}
-            size="xl"
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-purple-500/25 group"
-          >
-            Start Playing
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-sm text-white/40">or join a room</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
-
           {/* Join Room */}
           <div className="glass-card rounded-2xl p-6">
+            <p className="text-white/60 text-sm mb-4 text-center">Enter your room code to start playing</p>
             <div className="flex gap-3">
               <Input
                 placeholder="Enter room code"
                 value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onChange={(e) => { setRoomCode(e.target.value.toUpperCase()); setRoomError(''); }}
                 className="bg-white/5 border-white/10 text-white placeholder:text-white/40 uppercase tracking-widest text-center font-mono"
-                maxLength={6}
+                maxLength={20}
                 onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
               />
               <Button
                 onClick={handleJoinRoom}
-                variant="secondary"
-                disabled={!roomCode.trim()}
-                className="px-6"
+                disabled={!roomCode.trim() || joiningRoom}
+                className="px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
               >
-                Join
+                {joiningRoom ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : 'Join'}
               </Button>
             </div>
+            {roomError && <p className="text-red-400 text-xs mt-2 text-center">{roomError}</p>}
           </div>
         </motion.div>
 

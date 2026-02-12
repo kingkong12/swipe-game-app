@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SwipeDeck, Scenario } from '@/components/swipe/SwipeDeck';
 import { nanoid } from 'nanoid';
@@ -31,49 +30,68 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export default function PlayPage() {
-  const router = useRouter();
   const [sessionId, setSessionId] = useState<string>('');
   const [showInstructions, setShowInstructions] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  // Redirect forward if user already passed this step
+  useEffect(() => {
+    const step = localStorage.getItem('swipe-flow-step');
+    if (step === 'results') {
+      window.location.replace('/results');
+      return;
+    }
+    if (step === 'reveal') {
+      window.location.replace('/reveal');
+      return;
+    }
+    // Block back button: push user forward whenever page gains focus
+    const blockBack = () => window.history.forward();
+    window.addEventListener('popstate', blockBack);
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) blockBack();
+    });
+    return () => {
+      window.removeEventListener('popstate', blockBack);
+    };
+  }, []);
+
   useEffect(() => {
     const id = getSessionId();
     setSessionId(id);
     
-    // Fetch scenarios from API
+    // Fetch scenarios from API — room-specific if a room code exists
     async function loadScenarios() {
       try {
-        const response = await fetch('/api/scenarios');
-        const data = await response.json() as { success?: boolean; scenarios?: Scenario[] };
+        const roomCode = localStorage.getItem('swipe-room-code') || 'DEFAULT';
         
-        if (data.success && data.scenarios) {
-          // Shuffle scenarios so each user gets a different order
-          setScenarios(shuffleArray(data.scenarios));
+        // Try loading room-specific scenarios first
+        const roomRes = await fetch(`/api/rooms?code=${roomCode}`, { cache: 'no-store' });
+        const roomData = await roomRes.json() as { success?: boolean; scenarios?: Scenario[] };
+        
+        if (roomData.success && roomData.scenarios && roomData.scenarios.length > 0) {
+          setScenarios(shuffleArray(roomData.scenarios));
         } else {
-          // Fallback to mock data if API fails
-          console.warn('API failed, using fallback data');
-          const { getActiveScenarios } = await import('@/lib/mock-data');
-          const mockScenarios = getActiveScenarios().map(s => ({
-            id: s.id,
-            text: s.text,
-            shortLabel: s.shortLabel,
-            category: s.category,
-            character: s.character,
-          }));
-          setScenarios(shuffleArray(mockScenarios));
+          // Fallback: load all scenarios
+          const response = await fetch('/api/scenarios', { cache: 'no-store' });
+          const data = await response.json() as { success?: boolean; scenarios?: Scenario[] };
+          if (data.success && data.scenarios) {
+            setScenarios(shuffleArray(data.scenarios));
+          } else {
+            const { getActiveScenarios } = await import('@/lib/mock-data');
+            const mockScenarios = getActiveScenarios().map(s => ({
+              id: s.id, text: s.text, shortLabel: s.shortLabel, category: s.category, character: s.character,
+            }));
+            setScenarios(shuffleArray(mockScenarios));
+          }
         }
       } catch (err) {
         console.error('Error loading scenarios:', err);
-        // Fallback to mock data
         const { getActiveScenarios } = await import('@/lib/mock-data');
         const mockScenarios = getActiveScenarios().map(s => ({
-          id: s.id,
-          text: s.text,
-          shortLabel: s.shortLabel,
-          category: s.category,
-          character: s.character,
+          id: s.id, text: s.text, shortLabel: s.shortLabel, category: s.category, character: s.character,
         }));
         setScenarios(shuffleArray(mockScenarios));
       }
@@ -125,10 +143,11 @@ export default function PlayPage() {
   }, [sessionId]);
 
   const handleComplete = useCallback(() => {
-    // Store session info for results page
+    // Store session info and mark flow progress
     localStorage.setItem('swipe-room-id', DEMO_ROOM_ID);
-    router.push('/results');
-  }, [router]);
+    localStorage.setItem('swipe-flow-step', 'results');
+    window.location.replace('/results');
+  }, []);
 
   const startGame = () => {
     setShowInstructions(false);

@@ -41,3 +41,9 @@ next-env.d.ts
 # IDE
 .idea
 .vscode
+
+# Original high-res images (649MB) — kept locally, not in git
+/smruti-originals
+
+# Large video files
+videoplayback.mp4

@@ -8,7 +8,7 @@ import {
   animate,
   PanInfo,
 } from 'framer-motion';
-import { X, Heart, Undo2, Volume2, VolumeX } from 'lucide-react';
+import { X, Heart, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -236,48 +236,20 @@ export function SwipeDeck({
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-8 select-none">
-      {/* NO Guy - Left Side (Always Visible) */}
-      <div className="fixed left-[-80px] md:left-[-40px] lg:left-0 top-1/2 -translate-y-1/2 pointer-events-none z-0">
-        <img 
-          src="/no-guy.png" 
-          alt="No" 
-          className="w-72 h-72 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] object-contain drop-shadow-2xl"
-        />
-      </div>
-
-      {/* YES Guy - Right Side (Always Visible) */}
-      <div className="fixed right-[-80px] md:right-[-40px] lg:right-0 top-1/2 -translate-y-1/2 pointer-events-none z-0">
-        <img 
-          src="/yes-guy.png" 
-          alt="Yes" 
-          className="w-72 h-72 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] object-contain drop-shadow-2xl"
-        />
-      </div>
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-2rem)] px-4 py-4 select-none">
 
       {/* Progress Bar */}
-      <div className="w-[280px] md:w-[320px] lg:w-[380px] mb-6">
+      <div className="w-[270px] md:w-[306px] lg:w-[360px] mb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-white/70">
             {currentIndex + 1} of {scenarios.length}
           </span>
-          <button
-            onClick={toggleSound}
-            className="p-2 rounded-full hover:bg-white/10 transition-colors"
-            aria-label={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
-          >
-            {soundEnabled ? (
-              <Volume2 className="w-5 h-5 text-white/70" />
-            ) : (
-              <VolumeX className="w-5 h-5 text-white/50" />
-            )}
-          </button>
         </div>
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Card Stack - Adjusted to fit between side images */}
-      <div className="relative w-[280px] md:w-[320px] lg:w-[380px] h-[350px] md:h-[400px] z-20">
+      {/* Card Stack */}
+      <div className="relative w-[270px] md:w-[306px] lg:w-[360px] h-[60vh] md:h-[65vh] lg:h-[70vh] z-20">
         {/* Background cards (peeking) */}
         {scenarios.slice(currentIndex + 1, currentIndex + 3).map((scenario, i) => (
           <motion.div
@@ -319,10 +291,10 @@ export function SwipeDeck({
             whileTap={{ cursor: 'grabbing' }}
           >
             {/* Card Content */}
-            <div className="relative h-full p-6 flex flex-col items-center overflow-hidden">
+            <div className="relative h-full px-6 py-8 md:px-8 md:py-10 flex flex-col items-center overflow-hidden">
               {/* YES Stamp */}
               <motion.div
-                className="absolute top-20 right-4 rotate-12 pointer-events-none z-10"
+                className="absolute top-6 right-4 rotate-12 pointer-events-none z-10"
                 style={{ opacity: yesOpacity }}
               >
                 <div className="px-4 py-1.5 border-3 border-green-500 rounded-lg bg-green-500/20 shadow-lg shadow-green-500/20">
@@ -334,7 +306,7 @@ export function SwipeDeck({
 
               {/* NO Stamp */}
               <motion.div
-                className="absolute top-20 left-4 -rotate-12 pointer-events-none z-10"
+                className="absolute top-6 left-4 -rotate-12 pointer-events-none z-10"
                 style={{ opacity: noOpacity }}
               >
                 <div className="px-4 py-1.5 border-3 border-red-500 rounded-lg bg-red-500/20 shadow-lg shadow-red-500/20">
@@ -344,41 +316,12 @@ export function SwipeDeck({
                 </div>
               </motion.div>
 
-              {/* Character Profile */}
-              {currentCard.character && (
-                <div className="flex flex-col items-center mb-4 mt-2">
-                  {/* Character Avatar */}
-                  <div 
-                    className={cn(
-                      'w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-3xl md:text-4xl',
-                      'bg-gradient-to-br shadow-lg border-2 border-white/30',
-                      currentCard.character.bgGradient
-                    )}
-                    style={{ 
-                      boxShadow: `0 4px 20px ${currentCard.character.color}40`
-                    }}
-                  >
-                    {currentCard.character.emoji}
-                  </div>
-                  {/* Character Name */}
-                  <h3 
-                    className="mt-2 text-sm md:text-base font-bold tracking-wide"
-                    style={{ color: currentCard.character.color }}
-                  >
-                    {currentCard.character.name}
-                  </h3>
-                  <span className="text-xs text-white/50 font-medium">
-                    {currentCard.character.title}
-                  </span>
-                </div>
-              )}
-
-              {/* Question Text */}
-              <div className="flex-1 flex items-center justify-center">
+              {/* Question Text — fills the full card */}
+              <div className="flex-1 flex items-center justify-center w-full">
                 <p
                   className={cn(
                     'text-center font-medium leading-relaxed max-w-[240px] md:max-w-[280px]',
-                    highContrastMode ? 'text-white text-base md:text-lg' : 'text-white/90 text-sm md:text-base'
+                    highContrastMode ? 'text-white text-xl md:text-2xl' : 'text-white/90 text-lg md:text-xl'
                   )}
                 >
                   {currentCard.text}
@@ -395,22 +338,24 @@ export function SwipeDeck({
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center justify-center gap-4 mt-8">
-        {/* Undo Button */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            variant="glass"
-            size="icon-lg"
-            onClick={handleUndo}
-            disabled={history.length === 0 || isAnimating}
-            aria-label="Undo last swipe"
-            className="opacity-60 hover:opacity-100 disabled:opacity-20"
-          >
-            <Undo2 className="w-6 h-6" />
-          </Button>
-        </motion.div>
+      {/* YES/NO Characters overlaid on card area */}
+      <div className="absolute left-[-90px] md:left-[-120px] top-1/2 -translate-y-1/2 pointer-events-none z-10">
+        <img
+          src="/no-guy.png"
+          alt="No"
+          className="w-60 h-60 md:w-80 md:h-80 object-contain drop-shadow-2xl opacity-80"
+        />
+      </div>
+      <div className="absolute right-[-90px] md:right-[-120px] top-1/2 -translate-y-1/2 pointer-events-none z-10">
+        <img
+          src="/yes-guy.png"
+          alt="Yes"
+          className="w-60 h-60 md:w-80 md:h-80 object-contain drop-shadow-2xl opacity-80"
+        />
+      </div>
 
+      {/* Action Buttons */}
+      <div className="flex items-center justify-center gap-6 mt-6">
         {/* NO Button */}
         <motion.div 
           whileHover={{ scale: 1.08 }} 
@@ -446,10 +391,6 @@ export function SwipeDeck({
         </motion.div>
       </div>
 
-      {/* Keyboard hint */}
-      <p className="mt-6 text-sm text-white/30 hidden md:block">
-        ← → arrow keys to swipe • Ctrl+Z to undo
-      </p>
     </div>
   );
 }
