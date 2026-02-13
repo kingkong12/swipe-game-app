@@ -81,7 +81,7 @@ export default function RevealWrapper({ images }: RevealWrapperProps) {
         transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
       >
         <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-amber-300 bg-clip-text text-transparent">
-          Infinite Love
+          Source of Infinite Love
         </h1>
         <p className="text-white/40 text-sm mt-1">Tap any image to view</p>
       </motion.div>

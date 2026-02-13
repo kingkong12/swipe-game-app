@@ -14,7 +14,7 @@ const crimsonPro = Crimson_Pro({
 });
 
 export const metadata: Metadata = {
-  title: 'Swipe Game',
+  title: 'Quick Pick',
   description: 'An interactive swipe experience to discover your inner values',
   icons: {
     icon: '/favicon.ico',

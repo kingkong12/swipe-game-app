@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
         text: body.text,
         shortLabel: body.shortLabel || null,
         category: body.category || null,
+        quality: body.category || null,
         isActive: true,
       });
       return jsonResponse({ success: true, scenario });
@@ -66,12 +67,18 @@ export async function PUT(request: NextRequest) {
       return jsonResponse({ success: false, error: 'ID is required' }, 400);
     }
 
+    let useD1 = false;
     try {
       const { getDb, updateScenario } = await import('@/lib/db');
       const db = getDb();
+      useD1 = true;
       await updateScenario(db, body.id, body);
       return jsonResponse({ success: true });
-    } catch {
+    } catch (d1Error) {
+      if (useD1) {
+        console.error('D1 update failed:', d1Error);
+        return jsonResponse({ success: false, error: 'Failed to update scenario in database' }, 500);
+      }
       const { updateScenario } = await import('@/lib/mock-data');
       updateScenario(body.id, body);
       return jsonResponse({ success: true });
@@ -91,15 +98,27 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    let deleted = false;
+    let useD1 = false;
+
     try {
       const { getDb, deleteScenario } = await import('@/lib/db');
       const db = getDb();
+      useD1 = true;
       await deleteScenario(db, id);
-    } catch {
+      deleted = true;
+    } catch (d1Error) {
+      if (useD1) {
+        // D1 was available but delete failed (e.g., foreign key constraint)
+        console.error('D1 delete failed:', d1Error);
+        return jsonResponse({ success: false, error: 'Failed to delete scenario from database' }, 500);
+      }
+      // D1 not available — fall back to mock data (local dev)
       const { deleteScenario } = await import('@/lib/mock-data');
-      deleteScenario(id);
+      deleted = deleteScenario(id);
     }
-    return jsonResponse({ success: true });
+
+    return jsonResponse({ success: deleted, error: deleted ? undefined : 'Scenario not found' }, deleted ? 200 : 404);
   } catch (error) {
     console.error('Error deleting scenario:', error);
     return jsonResponse({ success: false, error: 'Failed to delete scenario' }, 500);

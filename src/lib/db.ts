@@ -11,6 +11,7 @@ interface ScenarioRow {
   text: string;
   short_label: string | null;
   category: string | null;
+  quality: string | null;
   is_active: number | null;
 }
 
@@ -99,7 +100,7 @@ async function generateUniqueRoomCode(db: D1Database): Promise<string> {
 
 export async function listScenarios(db: D1Database, setId = DEFAULT_SET_ID) {
   const { results } = await db.prepare(
-    `SELECT id, text, short_label, category, is_active
+    `SELECT id, text, short_label, category, quality, is_active
      FROM scenarios
      WHERE set_id = ? AND is_active = 1
      ORDER BY sort_order ASC`
@@ -110,6 +111,7 @@ export async function listScenarios(db: D1Database, setId = DEFAULT_SET_ID) {
     text: row.text,
     shortLabel: row.short_label ?? null,
     category: row.category ?? null,
+    quality: row.quality ?? null,
     isActive: Boolean(row.is_active),
     character: mapCharacter(row.category),
   }));
@@ -167,6 +169,9 @@ export async function updateScenario(
 }
 
 export async function deleteScenario(db: D1Database, id: string) {
+  // Delete related user_answers first to avoid foreign key constraint failures
+  await db.prepare('DELETE FROM user_answers WHERE scenario_id = ?').bind(id).run();
+  // Then delete the scenario itself
   await db.prepare('DELETE FROM scenarios WHERE id = ?').bind(id).run();
 }
 

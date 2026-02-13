@@ -88,7 +88,7 @@ export default function HomePage() {
             <Sparkles className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
-            Discover Your Match
+            Quick Pick
           </h1>
           <p className="text-white/60 text-lg">
             Discover what truly matters to you

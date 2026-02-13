@@ -73,7 +73,6 @@ export async function PUT(request: NextRequest) {
     }
 
     try {
-      // D1 path - would need DB update function
       const { updateRoom } = await import('@/lib/mock-data');
       const room = updateRoom(body.id, {
         title: body.title,

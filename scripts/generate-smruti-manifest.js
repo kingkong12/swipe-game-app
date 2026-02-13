@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /**
- * Generates a JSON manifest of all images in /public/smruti-thumb/ (for collage)
- * and /public/smruti/ (for full-size zoom).
- * Run before build to keep the manifest up to date.
+ * Generates a JSON manifest of all images in /public/smruti-thumb/
+ * and /public/smruti-full/ for the heart collage reveal.
  */
 const fs = require('fs');
 const path = require('path');
@@ -11,14 +10,12 @@ const thumbDir = path.join(__dirname, '..', 'public', 'smruti-thumb');
 const outPath = path.join(__dirname, '..', 'public', 'smruti-manifest.json');
 
 const extensions = /\.(jpg|jpeg|png|gif|webp)$/i;
-
-// Use thumbnails folder as the source of truth
-const files = fs.readdirSync(thumbDir).filter(f => extensions.test(f));
+const files = fs.readdirSync(thumbDir).filter(f => extensions.test(f)).sort();
 
 const manifest = files.map((f, i) => ({
   id: i,
-  src: '/smruti-thumb/' + encodeURIComponent(f),
-  fullSrc: '/smruti-full/' + encodeURIComponent(f),
+  src: '/smruti-thumb/' + f,
+  fullSrc: '/smruti-full/' + f,
   alt: 'Smruti ' + (i + 1),
 }));
 
