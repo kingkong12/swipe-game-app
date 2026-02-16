@@ -33,6 +33,7 @@ yarn-error.log*
 # Cloudflare
 .wrangler
 .dev.vars
+wrangler.toml.local
 
 # TypeScript
 *.tsbuildinfo

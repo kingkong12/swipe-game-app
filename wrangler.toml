@@ -8,7 +8,7 @@ pages_build_output_dir = ".vercel/output/static"
 [[d1_databases]]
 binding = "DB"
 database_name = "swipe-game-db"
-database_id = "9555761f-652c-4c6c-86ed-c663534e2ef3"
+database_id = "YOUR_D1_DATABASE_ID"
 
 # Environment variables (set via dashboard or wrangler secret)
 [vars]
